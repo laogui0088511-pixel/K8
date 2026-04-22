@@ -53,16 +53,16 @@ jobs:
 
     steps:
     - name: Setup
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       
     - name: Set up Go ${{ matrix.go_version }}
-      uses: actions/setup-go@v4
+      uses: actions/setup-go@v6
       with:
         go-version: ${{ matrix.go_version }}
       id: go
 
     - name: Install Task
-      uses: arduino/setup-task@v1
+      uses: arduino/setup-task@v2
       with:
         version: '3.x' # If available, use the latest major version that's compatible
         repo-token: ${{ secrets.GITHUB_TOKEN }}
@@ -87,7 +87,7 @@ jobs:
       run: sudo make clean
 
     - name: Push Changes to Main
-      uses: stefanzweifel/git-auto-commit-action@v5
+      uses: stefanzweifel/git-auto-commit-action@v7
       with:
         commit_message: "cicd: robot automated Change"
         branch: main
@@ -119,9 +119,9 @@ jobs:
         os: ["ubuntu-latest"]
     steps:
     - name: Checkout and Install OpenIM
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
     - name: Install Task
-      uses: arduino/setup-task@v1
+      uses: arduino/setup-task@v2
       with:
         version: '3.x' # If available, use the latest major version that's compatible
         repo-token: ${{ secrets.GITHUB_TOKEN }}
@@ -142,16 +142,16 @@ jobs:
         os: ["ubuntu-latest", "macos-latest"]
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
 
     - name: Set up Go ${{ matrix.go_version }}
-      uses: actions/setup-go@v4
+      uses: actions/setup-go@v6
       with:
         go-version: ${{ matrix.go_version }}
       id: go
 
     - name: Install Task
-      uses: arduino/setup-task@v1
+      uses: arduino/setup-task@v2
       with:
         version: '3.x' # If available, use the latest major version that's compatible
         repo-token: ${{ secrets.GITHUB_TOKEN }}
@@ -226,15 +226,15 @@ jobs:
       name: openim
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
     - name: Set up Go ${{ matrix.go_version }}
-      uses: actions/setup-go@v4
+      uses: actions/setup-go@v6
       with:
         go-version: ${{ matrix.go_version }}
       id: go
 
     - name: Install Task
-      uses: arduino/setup-task@v1
+      uses: arduino/setup-task@v2
       with:
         version: '3.x' # If available, use the latest major version that's compatible
         repo-token: ${{ secrets.GITHUB_TOKEN }}

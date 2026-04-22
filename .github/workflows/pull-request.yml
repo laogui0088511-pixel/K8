@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -44,9 +44,9 @@ jobs:
           BRANCH_NAME="auto-pr-$(date +'%Y%m%d%H%M%S')"
           git checkout -b $BRANCH_NAME
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
       - name: Setup Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v6
       - name: Run go modules tidy
         run: |
           sudo make tidy
@@ -79,7 +79,7 @@ jobs:
         continue-on-error: true
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v2
+        uses: github/codeql-action/analyze@v4
 
       - name: OpenIM verify copyright
         run: |
@@ -89,7 +89,7 @@ jobs:
         continue-on-error: true
 
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v5
+        uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ secrets.BOT_GITHUB_TOKEN }}
           commit-message: "cicd: bump League Patch"
