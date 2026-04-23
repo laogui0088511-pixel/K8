@@ -1,0 +1,205 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+    id 'dev.flutter.flutter-gradle-plugin'
+}
+
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.withReader('UTF-8') { reader ->
+        localProperties.load(reader)
+    }
+}
+
+// 加载签名配置
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('key.properties')
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
+def hasReleaseKeystoreConfig = keystorePropertiesFile.exists() &&
+        keystoreProperties['keyAlias'] &&
+        keystoreProperties['keyPassword'] &&
+        keystoreProperties['storeFile'] &&
+        keystoreProperties['storePassword']
+
+gradle.taskGraph.whenReady { taskGraph ->
+    def needReleaseSigning = taskGraph.allTasks.any { task ->
+        def taskName = task.name.toLowerCase()
+        taskName.contains('release') || taskName.contains('bundle')
+    }
+    if (needReleaseSigning && !hasReleaseKeystoreConfig) {
+        throw new RuntimeException("Missing release signing config. Please create android/key.properties based on android/key.properties.example.")
+    }
+}
+
+def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
+if (flutterVersionCode == null) {
+    flutterVersionCode = '1'
+}
+
+def flutterVersionName = localProperties.getProperty('flutter.versionName')
+if (flutterVersionName == null) {
+    flutterVersionName = '1.0'
+}
+
+android {
+    namespace 'io.toim.cn'
+    compileSdkVersion 34
+    ndkVersion "25.1.8937393"
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+        coreLibraryDesugaringEnabled true
+    }
+
+    defaultConfig {
+        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
+        applicationId "io.toim.cn"
+        // You can update the following values to match your application needs.
+        // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
+        minSdkVersion 24
+        targetSdkVersion 34
+        versionCode flutterVersionCode.toInteger()
+        versionName flutterVersionName
+
+        multiDexEnabled true
+
+        ndk {
+            abiFilters "arm64-v8a", "x86_64"//, "armeabi-v7a"//, "armeabi", "x86", "mips", "mips64"
+        }
+
+        lintOptions {
+            disable 'InvalidPackage'
+            disable "Instantiatable"
+            checkReleaseBuilds false
+            abortOnError false
+        }
+
+        manifestPlaceholders = [
+            GETUI_APPID    : "YAhoO05kFt7cyZ6cFdPbC9",
+                // 下面是多厂商配置，如需要开通使用请联系技术支持
+                // 如果不需要使用，预留空字段即可
+                XIAOMI_APP_ID  : "",
+                XIAOMI_APP_KEY : "",
+                MEIZU_APP_ID   : "",
+                MEIZU_APP_KEY  : "",
+                HUAWEI_APP_ID  : "",
+                OPPO_APP_KEY   : "",
+                OPPO_APP_SECRET: "",
+                VIVO_APP_ID    : "",
+                VIVO_APP_KEY   : "",
+                // 荣耀相关应用参数
+                HONOR_APP_ID   : "",
+        ]
+    }
+
+    signingConfigs {
+        release {
+            if (hasReleaseKeystoreConfig) {
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+                storeFile file(keystoreProperties['storeFile'])
+                storePassword keystoreProperties['storePassword']
+            }
+        }
+    }
+
+    buildTypes {
+        debug {
+            signingConfig signingConfigs.debug
+        }
+        profile {
+            signingConfig signingConfigs.debug
+
+        }
+        release {
+            minifyEnabled false
+            shrinkResources false
+            signingConfig signingConfigs.release
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    android.applicationVariants.all {
+        variant ->
+            variant.outputs.all {
+                outputFileName = "戎信_${versionName}(${versionCode})_${buildType.name}_${buildTime()}.apk"
+            }
+    }
+
+    packagingOptions {
+      // other options here
+
+      /* Fix for ffmpeg-kit-react-native START */
+        pickFirst 'lib/arm64-v8a/libgojni.so'
+        pickFirst 'lib/armeabi-v7a/libgojni.so'
+        pickFirst 'lib/x86/libgojni.so'
+        pickFirst 'lib/x86_64/libgojni.so'
+        pickFirst 'lib/armeabi-v7a/libc++_shared.so'
+        pickFirst 'lib/x86/libc++_shared.so'
+        pickFirst 'lib/x86_64/libc++_shared.so'
+        pickFirst 'lib/arm64-v8a/libc++_shared.so'
+        pickFirst 'lib/arm64-v8a/libavcodec.so'
+        pickFirst 'lib/arm64-v8a/libavformat.so'
+        pickFirst 'lib/arm64-v8a/libavutil.so'
+        pickFirst 'lib/arm64-v8a/libswscale.so'
+        pickFirst 'lib/arm64-v8a/libavdevice.so'
+        pickFirst 'lib/arm64-v8a/libavfilter.so'
+        pickFirst 'lib/arm64-v8a/libffmpegkit.so'
+        pickFirst 'lib/arm64-v8a/libffmpegkit_abidetect.so'
+        pickFirst 'lib/arm64-v8a/libswresample.so'
+        pickFirst 'lib/arm64-v8a/libswscale.so'
+        pickFirst 'lib/x86/libavcodec.so'
+        pickFirst 'lib/x86/libavformat.so'
+        pickFirst 'lib/x86/libavutil.so'
+        pickFirst 'lib/x86/libswscale.so'
+        pickFirst 'lib/x86/libavdevice.so'
+        pickFirst 'lib/x86/libavfilter.so'
+        pickFirst 'lib/x86/libffmpegkit.so'
+        pickFirst 'lib/x86/libffmpegkit_abidetect.so'
+        pickFirst 'lib/x86/libswresample.so'
+        pickFirst 'lib/x86/libswscale.so'
+        pickFirst 'lib/x86_64/libavcodec.so'
+        pickFirst 'lib/x86_64/libavformat.so'
+        pickFirst 'lib/x86_64/libavutil.so'
+        pickFirst 'lib/x86_64/libswscale.so'
+        pickFirst 'lib/x86_64/libavdevice.so'
+        pickFirst 'lib/x86_64/libavfilter.so'
+        pickFirst 'lib/x86_64/libffmpegkit.so'
+        pickFirst 'lib/x86_64/libffmpegkit_abidetect.so'
+        pickFirst 'lib/x86_64/libswresample.so'
+        pickFirst 'lib/x86_64/libswscale.so'
+      /* Fix for ffmpeg-kit-react-native END */
+    }
+}
+
+flutter {
+    source '../..'
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
+    implementation 'com.huawei.hms:push:5.3.0.301'
+    implementation 'com.getui.opt:hwp:3.1.0'
+    implementation 'com.getui.opt:xmp:3.2.0'
+    implementation('com.assist-v3:oppo:3.1.0') { exclude group: 'commons-codec' }
+    implementation 'com.assist-v3:vivo:3.1.0'
+    implementation 'com.getui.opt:mzp:3.2.0'
+    implementation 'com.getui.opt:ups:3.0.3'
+    implementation 'com.getui.opt:honor:3.2.0'
+
+//    implementation('com.amap.api:location:5.6.0')
+    implementation 'com.android.support:multidex:1.0.3'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.2'
+}
+
+//apply plugin: 'com.huawei.agconnect'
+//apply plugin: 'com.google.gms.google-services'
+
+static def buildTime() {
+    return new Date().format("MMddHHmm", TimeZone.getTimeZone("GMT+08:00"))
+}

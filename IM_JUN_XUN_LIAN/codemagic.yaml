@@ -1,0 +1,41 @@
+workflows:
+  android_batch_30:
+    name: Android Batch Build 30
+    max_build_duration: 180
+    environment:
+      flutter: 3.19.6
+      xcode: latest
+      java: 17
+      vars:
+        TARGET_COUNT: 30
+        BUILD_NUMBER_BASE: 100000
+      groups:
+        - android_signing
+
+    scripts:
+      - name: Restore Android signing files
+        script: |
+          set -euo pipefail
+          if [ -z "${ANDROID_KEYSTORE_BASE64:-}" ] || [ -z "${KEYSTORE_PASSWORD:-}" ] || [ -z "${KEY_ALIAS:-}" ] || [ -z "${KEY_PASSWORD:-}" ]; then
+            echo "Missing required environment variables in android_signing group" >&2
+            exit 1
+          fi
+
+          mkdir -p android/app
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > android/app/release-upload.jks
+
+          cat > android/key.properties <<EOF
+          storeFile=app/release-upload.jks
+          storePassword=${KEYSTORE_PASSWORD}
+          keyAlias=${KEY_ALIAS}
+          keyPassword=${KEY_PASSWORD}
+          EOF
+
+      - name: Build APKs until target count
+        script: |
+          set -euo pipefail
+          bash scripts/build_apk_until_30.sh
+
+    artifacts:
+      - build/batch-apk/*.apk
+      - build/symbols/**/*

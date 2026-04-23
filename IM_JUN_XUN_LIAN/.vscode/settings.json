@@ -1,0 +1,6 @@
+{
+  "dart.analysisExcludedFolders": [
+    "local_plugin"
+  ],
+  "dart.flutterSdkPath": ".fvm/versions/3.19.5"
+}

@@ -1,0 +1,29 @@
+group 'io.openim.live.alert.flutter_openim_live_alert'
+version '1.0'
+
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:8.3.2'
+    }
+}
+
+apply plugin: 'com.android.library'
+
+android {
+    namespace 'io.openim.live.alert.flutter_openim_live_alert'
+    compileSdkVersion 34
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    defaultConfig {
+        minSdkVersion 24
+    }
+}
