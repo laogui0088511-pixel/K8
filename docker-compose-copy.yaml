@@ -58,7 +58,7 @@ services:
     restart: always
     sysctls:
       net.core.somaxconn: 1024
-    command: redis-server --requirepass ${REDIS_PASSWORD} --appendonly yes
+    command: redis-server --requirepass ${REDIS_PASSWORD}
     networks:
       server:
         ipv4_address: ${REDIS_NETWORK_ADDRESS}
